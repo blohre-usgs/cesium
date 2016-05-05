@@ -124,7 +124,7 @@ define([
 
 
     function createWorker(processor) {
-        var worker = require('worker?name=cesiumWorkers.js!../Workers/bootstrapper/cesiumWorkerBootstrapper')();
+        var worker = require('worker!../Workers/bootstrapper/cesiumWorkerBootstrapper')();
         worker.postMessage = defaultValue(worker.webkitPostMessage, worker.postMessage);
 
         var bootstrapMessage = {
