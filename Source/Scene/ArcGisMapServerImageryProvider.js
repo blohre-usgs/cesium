@@ -670,6 +670,18 @@ define([
             url = this._proxy.getURL(url);
         }
 
+        //A couple of helper objects for checking and labeling the output values
+        var acceptedKeys = ["designation type", "manager name", "gis acres", "public access", "gap status code", "state name", "aggregator source"];
+        var keyMap = {
+            "designation type": "Designation",
+            "manager name": "Manager Name",
+            "gis acres": "GIS Acres",
+            "public access": "Public Access",
+            "gap status code": "Gap Status",
+            "state name": "State",
+            "aggregator source": "Aggregator Source"
+        };
+
         return loadJson(url).then(function(json) {
             var result = [];
 
@@ -683,9 +695,34 @@ define([
 
                 var featureInfo = new ImageryLayerFeatureInfo();
                 featureInfo.data = feature;
-                featureInfo.name = feature.value;
-                featureInfo.properties = feature.attributes;
-                featureInfo.configureDescriptionFromProperties(feature.attributes);
+                // Use the unit name as the title if it exists
+                var unitName = feature.attributes['Unit Name'];
+                featureInfo.name = unitName ? unitName : feature.value;
+
+                //This object is used for saving only the data we want, instead of all fields returned from the
+                // identify service.
+                var myObj = {};
+
+                //feature.attributes is a map/object. This iterates through all of the keys.
+                Object.keys(feature.attributes).map(function(keyName, index) {
+                    //Convert the key to lower case for the sake of comparing to our acceptedKeys array.
+                    var lowercaseKey = keyName.toLowerCase().trim();
+
+                    //If the key exists in our acceptedKeys array, add it to our object.
+                    if (acceptedKeys.indexOf(lowercaseKey) !== -1) {
+                        var value = feature.attributes[keyName];
+
+                        //If the value is not a number, add it as is. If it is, style the number to be pretty.
+                        if (isNaN(value)) {
+                            myObj[keyMap[lowercaseKey]] = value;
+                        } else {
+                            myObj[keyMap[lowercaseKey]] = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        }
+                    }
+                });
+
+                featureInfo.properties = myObj;
+                featureInfo.configureDescriptionFromProperties(myObj);
 
                 // If this is a point feature, use the coordinates of the point.
                 if (feature.geometryType === 'esriGeometryPoint' && feature.geometry) {
