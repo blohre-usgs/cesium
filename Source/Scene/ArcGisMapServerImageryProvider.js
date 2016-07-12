@@ -670,8 +670,7 @@ define([
             url = this._proxy.getURL(url);
         }
 
-        //A couple of helper objects for checking and labeling the output values
-        var acceptedKeys = ["designation type", "manager name", "gis acres", "public access", "gap status code", "state name", "aggregator source"];
+        //A helper for checking and labeling the output values
         var keyMap = {
             "designation type": "Designation",
             "manager name": "Manager Name",
@@ -708,8 +707,8 @@ define([
                     //Convert the key to lower case for the sake of comparing to our acceptedKeys array.
                     var lowercaseKey = keyName.toLowerCase().trim();
 
-                    //If the key exists in our acceptedKeys array, add it to our object.
-                    if (acceptedKeys.indexOf(lowercaseKey) !== -1) {
+                    //If the key exists in our keyMap, add it to our object.
+                    if (keyMap[lowercaseKey]) {
                         var value = feature.attributes[keyName];
 
                         //If the value is not a number, add it as is. If it is, style the number to be pretty.
