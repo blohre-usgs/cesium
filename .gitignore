@@ -18,8 +18,6 @@ Thumbs.db
 /Source/Shaders/*/*.js
 /Source/Shaders/*/*/*.js
 
-/Specs/SpecList.js
-
 /node_modules
 npm-debug.log
 
