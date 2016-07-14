@@ -671,7 +671,7 @@ define([
         }
 
         //A helper for checking and labeling the output values
-        var keyMap = {
+        var propertyMap = {
             "designation type": "Designation",
             "manager name": "Manager Name",
             "gis acres": "GIS Acres",
@@ -700,28 +700,25 @@ define([
 
                 //This object is used for saving only the data we want, instead of all fields returned from the
                 // identify service.
-                var myObj = {};
+                var displayProperties = {};
 
-                //feature.attributes is a map/object. This iterates through all of the keys.
-                Object.keys(feature.attributes).map(function(keyName, index) {
-                    //Convert the key to lower case for the sake of comparing to our acceptedKeys array.
-                    var lowercaseKey = keyName.toLowerCase().trim();
-
-                    //If the key exists in our keyMap, add it to our object.
-                    if (keyMap[lowercaseKey]) {
-                        var value = feature.attributes[keyName];
-
+                var properties = feature.attributes;
+                for(var prop in properties) {
+                    var propLowerCase = prop.toLowerCase().trim();
+                    if(propertyMap[propLowerCase]) {
+                        var key = propertyMap[propLowerCase];
+                        var value = properties[prop];
                         //If the value is not a number, add it as is. If it is, style the number to be pretty.
                         if (isNaN(value)) {
-                            myObj[keyMap[lowercaseKey]] = value;
+                            displayProperties[key] = value;
                         } else {
-                            myObj[keyMap[lowercaseKey]] = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                            displayProperties[key] = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                         }
                     }
-                });
+                }
 
-                featureInfo.properties = myObj;
-                featureInfo.configureDescriptionFromProperties(myObj);
+                featureInfo.properties = displayProperties;
+                featureInfo.configureDescriptionFromProperties(displayProperties);
 
                 // If this is a point feature, use the coordinates of the point.
                 if (feature.geometryType === 'esriGeometryPoint' && feature.geometry) {
